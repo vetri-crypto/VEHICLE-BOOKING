@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Root Health check
-app.get('/api/health', (req, res) => {
+app.get(['/api', '/api/health'], (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Online Vehicle Booking System API is running cleanly',

@@ -2,11 +2,27 @@
   "name": "online-vehicle-booking-system",
   "version": "1.0.0",
   "description": "Online Vehicle Booking System - OOASE MERN Stack Project",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
+    "build": "npm run build --prefix client",
+    "vercel-build": "npm run build --prefix client",
     "start": "concurrently \"npm run start --prefix server\" \"npm run dev --prefix client\"",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
     "seed": "npm run seed --prefix server"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
