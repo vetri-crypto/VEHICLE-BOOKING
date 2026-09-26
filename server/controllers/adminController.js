@@ -111,6 +111,38 @@ const createUser = async (req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const result = await adminService.deleteUser(req.params.id, req.user._id);
+    res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode);
+    }
+    next(error);
+  }
+};
+
+const updateUserStatus = async (req, res, next) => {
+  try {
+    const user = await adminService.updateUserStatus(req.params.id, req.body.status);
+    res.status(200).json({
+      success: true,
+      message: `User status updated to ${user.status} successfully`,
+      data: user
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode);
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
   getUsers,
@@ -118,5 +150,8 @@ module.exports = {
   getBookings,
   updateBookingStatus,
   getReports,
-  createUser
+  createUser,
+  deleteUser,
+  updateUserStatus
 };
+

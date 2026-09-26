@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getAdminUsers, createAdminUser } from '../services/adminApi';
+import { getAdminUsers, createAdminUser, deleteAdminUser, updateAdminUserStatus } from '../services/adminApi';
+import useAuth from '../hooks/useAuth';
 import AdminNav from '../components/AdminNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { Users, Mail, Phone, MapPin, UserPlus, X, User, UserCheck, ShieldAlert, Lock } from 'lucide-react';
+import { Users, Mail, Phone, MapPin, UserPlus, X, User, UserCheck, ShieldAlert, Lock, Trash2, Power, AlertTriangle } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 
 const AdminUsers = () => {
   const location = useLocation();
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Delete & Status Toggle state
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [statusUpdating, setStatusUpdating] = useState('');
 
   // Modal & Form State
   const [showModal, setShowModal] = useState(false);
@@ -114,6 +122,42 @@ const AdminUsers = () => {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setDeleteError('');
+    try {
+      setDeleting(true);
+      const res = await deleteAdminUser(userToDelete._id);
+      if (res.success) {
+        setSuccessMsg(`Account for "${userToDelete.name}" (${userToDelete.role}) deleted successfully.`);
+        setUserToDelete(null);
+        await fetchUsers();
+      }
+    } catch (err) {
+      setDeleteError(err.message || 'Failed to delete user account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleToggleStatus = async (targetUser) => {
+    const newStatus = targetUser.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    try {
+      setStatusUpdating(targetUser._id);
+      setError('');
+      setSuccessMsg('');
+      const res = await updateAdminUserStatus(targetUser._id, newStatus);
+      if (res.success) {
+        setSuccessMsg(`User status for ${targetUser.name} updated to ${newStatus}`);
+        await fetchUsers();
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to update user status');
+    } finally {
+      setStatusUpdating('');
+    }
+  };
+
   const getRoleBadgeStyle = (role) => {
     switch (role) {
       case 'ADMIN':
@@ -131,7 +175,7 @@ const AdminUsers = () => {
       
       <AdminNav
         title="User Management & Account Creation"
-        subtitle="Manage registered customers, fleet drivers, and system administrators. Create new accounts on demand."
+        subtitle="Manage registered customers, fleet drivers, and system administrators. Delete inactive accounts and manage status."
       />
 
       {successMsg && (
@@ -155,36 +199,96 @@ const AdminUsers = () => {
                   <th>Role</th>
                   <th>Status</th>
                   <th>Joined Date</th>
+                  <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length > 0 ? (
-                  users.map((u) => (
-                    <tr key={u._id}>
-                      <td>
-                        <strong style={{ color: 'var(--text-primary)', display: 'block' }}>{u.name}</strong>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{u.email}</span>
-                      </td>
-                      <td>
-                        <span style={{ display: 'block', fontSize: '0.85rem' }}>📞 {u.phone}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>📍 {u.address || 'N/A'}</span>
-                      </td>
-                      <td>
-                        <span className="badge" style={getRoleBadgeStyle(u.role)}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${u.status === 'ACTIVE' ? 'badge-available' : 'badge-cancelled'}`}>
-                          {u.status}
-                        </span>
-                      </td>
-                      <td>{formatDate(u.createdAt)}</td>
-                    </tr>
-                  ))
+                  users.map((u) => {
+                    const isSelf = currentUser && (currentUser._id === u._id || currentUser.id === u._id);
+                    return (
+                      <tr key={u._id}>
+                        <td>
+                          <strong style={{ color: 'var(--text-primary)', display: 'block' }}>
+                            {u.name} {isSelf && <span style={{ fontSize: '0.7rem', background: 'var(--accent-primary)', color: '#fff', padding: '0.1rem 0.4rem', borderRadius: '4px', marginLeft: '0.3rem' }}>You</span>}
+                          </strong>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{u.email}</span>
+                        </td>
+                        <td>
+                          <span style={{ display: 'block', fontSize: '0.85rem' }}>📞 {u.phone}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>📍 {u.address || 'N/A'}</span>
+                        </td>
+                        <td>
+                          <span className="badge" style={getRoleBadgeStyle(u.role)}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge ${u.status === 'ACTIVE' ? 'badge-available' : 'badge-cancelled'}`}>
+                            {u.status}
+                          </span>
+                        </td>
+                        <td>{formatDate(u.createdAt)}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center' }}>
+                            {/* Toggle Active / Inactive Status */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStatus(u)}
+                              disabled={statusUpdating === u._id || isSelf}
+                              title={u.status === 'ACTIVE' ? 'Deactivate User Account' : 'Activate User Account'}
+                              style={{
+                                padding: '0.4rem 0.6rem',
+                                borderRadius: 'var(--radius-md)',
+                                border: `1px solid ${u.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'}`,
+                                background: u.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                color: u.status === 'ACTIVE' ? '#ef4444' : '#10b981',
+                                cursor: isSelf ? 'not-allowed' : 'pointer',
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                opacity: isSelf ? 0.5 : 1
+                              }}
+                            >
+                              <Power size={14} />
+                              {u.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                            </button>
+
+                            {/* Delete User Account Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError('');
+                                setUserToDelete(u);
+                              }}
+                              disabled={isSelf}
+                              title={isSelf ? 'Cannot delete your own account' : 'Delete user account'}
+                              style={{
+                                padding: '0.4rem 0.6rem',
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid rgba(239, 68, 68, 0.4)',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                cursor: isSelf ? 'not-allowed' : 'pointer',
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                opacity: isSelf ? 0.4 : 1
+                              }}
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                       No registered users found.
                     </td>
                   </tr>
@@ -195,7 +299,62 @@ const AdminUsers = () => {
         </div>
       )}
 
+      {/* DELETE CONFIRMATION MODAL */}
+      {userToDelete && (
+        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
+          <div className="card" style={{ width: '100%', maxWidth: '440px', padding: '2rem', position: 'relative' }}>
+            <button
+              onClick={() => setUserToDelete(null)}
+              style={{ position: 'absolute', right: '1.25rem', top: '1.25rem', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+                <AlertTriangle size={28} />
+              </div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                Delete User Account?
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                Are you sure you want to permanently delete account for <strong style={{ color: 'var(--text-primary)' }}>{userToDelete.name}</strong> ({userToDelete.email})?
+              </p>
+              {userToDelete.status === 'INACTIVE' && (
+                <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '4px', fontSize: '0.8rem' }}>
+                  ⚠️ This inactive account will be permanently removed from MongoDB.
+                </div>
+              )}
+            </div>
+
+            <ErrorMessage message={deleteError} />
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setUserToDelete(null)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn"
+                style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none' }}
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* CREATE USER MODAL */}
+
       {showModal && (
         <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="card" style={{ width: '100%', maxWidth: '540px', padding: '2rem', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>

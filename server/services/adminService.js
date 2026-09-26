@@ -147,8 +147,64 @@ const createUser = async ({ name, email, phone, password, confirmPassword, addre
   };
 };
 
+const deleteUser = async (targetUserId, adminUserId) => {
+  if (targetUserId.toString() === adminUserId.toString()) {
+    const error = new Error('You cannot delete your own admin account');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const user = await User.findById(targetUserId);
+  if (!user) {
+    const error = new Error('User account not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check if user has active ongoing bookings
+  const activeBookings = await Booking.find({
+    $or: [{ userId: targetUserId }, { driverId: targetUserId }],
+    status: { $in: ['PENDING', 'CONFIRMED', 'ACTIVE'] }
+  });
+
+  if (activeBookings.length > 0) {
+    const error = new Error('Cannot delete user account with active or ongoing bookings.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  await User.findByIdAndDelete(targetUserId);
+  return { id: targetUserId, message: 'User account deleted successfully' };
+};
+
+const updateUserStatus = async (targetUserId, status) => {
+  const normalizedStatus = status ? status.toUpperCase() : '';
+  if (!['ACTIVE', 'INACTIVE'].includes(normalizedStatus)) {
+    const error = new Error('Status must be ACTIVE or INACTIVE');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const user = await User.findByIdAndUpdate(
+    targetUserId,
+    { status: normalizedStatus },
+    { new: true }
+  ).select('-password');
+
+  if (!user) {
+    const error = new Error('User account not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return user;
+};
+
 module.exports = {
   getDashboardStats,
   getReports,
-  createUser
+  createUser,
+  deleteUser,
+  updateUserStatus
 };
+

@@ -10,6 +10,8 @@ router.use(authorize('ADMIN')); // All admin routes require ADMIN role
 router.get('/dashboard', adminController.getDashboard);
 router.get('/users', adminController.getUsers);
 router.post('/users', adminController.createUser);
+router.put('/users/:id/status', adminController.updateUserStatus);
+router.delete('/users/:id', adminController.deleteUser);
 router.get('/vehicles', adminController.getVehicles);
 router.get('/bookings', adminController.getBookings);
 router.put('/bookings/:id/status', adminController.updateBookingStatus);
