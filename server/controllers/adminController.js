@@ -95,11 +95,28 @@ const getReports = async (req, res, next) => {
   }
 };
 
+const createUser = async (req, res, next) => {
+  try {
+    const user = await adminService.createUser(req.body);
+    res.status(201).json({
+      success: true,
+      message: `${user.role} account created successfully`,
+      data: user
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode);
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboard,
   getUsers,
   getVehicles,
   getBookings,
   updateBookingStatus,
-  getReports
+  getReports,
+  createUser
 };

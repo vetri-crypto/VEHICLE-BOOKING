@@ -350,7 +350,7 @@ const BookingPage = () => {
               style={{ width: '100%', marginTop: '1rem' }}
               disabled={submitting || numberOfDays <= 0 || (bookingType === 'WITH_DRIVER' && !selectedDriverId)}
             >
-              {submitting ? 'Processing...' : paymentMethod === 'CASH' ? 'Confirm Booking (Pay Cash)' : `Proceed to Payment & OTP Verification (${formatCurrency(totalAmount)})`}
+              {submitting ? 'Processing...' : paymentMethod === 'CASH' ? 'Confirm Booking (Pay Cash)' : `Proceed to Payment (${formatCurrency(totalAmount)})`}
             </button>
 
           </form>

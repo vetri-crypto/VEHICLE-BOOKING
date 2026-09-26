@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminReports } from '../services/adminApi';
+import AdminNav from '../components/AdminNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { formatCurrency } from '../utils/helpers';
@@ -31,14 +32,12 @@ const AdminReports = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      <div>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.25rem' }}>System Reports & Analytics</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Fleet category distribution, booking statistics, and top revenue-generating vehicles.
-        </p>
-      </div>
+      <AdminNav
+        title="System Reports & Analytics"
+        subtitle="Fleet category distribution, booking statistics, and top revenue-generating vehicles."
+      />
 
       {/* Grid Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>

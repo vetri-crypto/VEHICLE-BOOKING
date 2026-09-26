@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, User, Mail, Phone, Lock, MapPin, UserCheck, ShieldAlert } from 'lucide-react';
+import { UserPlus, User, Mail, Phone, Lock, MapPin } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -11,8 +11,7 @@ const Register = () => {
     phone: '',
     password: '',
     confirmPassword: '',
-    address: '',
-    role: 'CUSTOMER'
+    address: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -40,22 +39,15 @@ const Register = () => {
 
     try {
       setSubmitting(true);
-      const user = await register({
+      await register({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        address: formData.address,
-        role: formData.role
+        address: formData.address
       });
 
-      if (user.role === 'ADMIN') {
-        navigate('/admin/dashboard');
-      } else if (user.role === 'DRIVER') {
-        navigate('/driver/dashboard');
-      } else {
-        navigate('/vehicles');
-      }
+      navigate('/vehicles');
     } catch (err) {
       setLocalError(err.message || 'Registration failed');
     } finally {
@@ -71,100 +63,13 @@ const Register = () => {
             <UserPlus size={24} />
           </div>
           <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Account</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Join DrivePulse as Customer, Driver, or Administrator</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Join DrivePulse as a Customer</p>
         </div>
 
         <ErrorMessage message={localError} />
 
         <form onSubmit={handleSubmit}>
           
-          {/* Role Selection Radio Buttons */}
-          <div className="form-group">
-            <label className="form-label">Account Type (Role)</label>
-            <div className="role-selector-grid">
-              <label
-                style={{
-                  flex: 1,
-                  padding: '0.65rem 0.5rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: `1px solid ${formData.role === 'CUSTOMER' ? 'var(--accent-primary)' : 'var(--border-color)'}`,
-                  background: formData.role === 'CUSTOMER' ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-input)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  fontWeight: '600',
-                  fontSize: '0.85rem',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="CUSTOMER"
-                  checked={formData.role === 'CUSTOMER'}
-                  onChange={handleChange}
-                />
-                <User size={16} style={{ color: 'var(--accent-primary)' }} /> Customer
-              </label>
-
-              <label
-                style={{
-                  flex: 1,
-                  padding: '0.65rem 0.5rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: `1px solid ${formData.role === 'DRIVER' ? '#10b981' : 'var(--border-color)'}`,
-                  background: formData.role === 'DRIVER' ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-input)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  fontWeight: '600',
-                  fontSize: '0.85rem',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="DRIVER"
-                  checked={formData.role === 'DRIVER'}
-                  onChange={handleChange}
-                />
-                <UserCheck size={16} style={{ color: '#10b981' }} /> Driver
-              </label>
-
-              <label
-                style={{
-                  flex: 1,
-                  padding: '0.65rem 0.5rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: `1px solid ${formData.role === 'ADMIN' ? 'var(--accent-secondary)' : 'var(--border-color)'}`,
-                  background: formData.role === 'ADMIN' ? 'rgba(6, 182, 212, 0.1)' : 'var(--bg-input)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  fontWeight: '600',
-                  fontSize: '0.85rem',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="ADMIN"
-                  checked={formData.role === 'ADMIN'}
-                  onChange={handleChange}
-                />
-                <ShieldAlert size={16} style={{ color: 'var(--accent-secondary)' }} /> Admin
-              </label>
-            </div>
-          </div>
-
           <div className="form-group">
             <label className="form-label">Full Name</label>
             <div style={{ position: 'relative' }}>
@@ -271,7 +176,7 @@ const Register = () => {
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={submitting}>
-            {submitting ? 'Creating Account...' : `Register as ${formData.role}`}
+            {submitting ? 'Creating Account...' : 'Register'}
           </button>
         </form>
 

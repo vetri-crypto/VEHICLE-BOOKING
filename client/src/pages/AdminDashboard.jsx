@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAdminDashboard } from '../services/adminApi';
+import AdminNav from '../components/AdminNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import StatusBadge from '../components/StatusBadge';
@@ -14,7 +15,8 @@ import {
   CheckCircle,
   Clock,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -43,40 +45,27 @@ const AdminDashboard = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      {/* Title */}
-      <div className="page-header">
-        <div>
-          <h1 style={{ fontSize: '2.25rem', marginBottom: '0.25rem' }}>Admin Operations Portal</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            System metrics, vehicle fleet management, user records, and booking status controls.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link to="/admin/vehicles" className="btn btn-primary btn-sm">
-            <Car size={16} /> Manage Fleet
-          </Link>
-          <Link to="/admin/bookings" className="btn btn-secondary btn-sm">
-            <Calendar size={16} /> Manage Bookings
-          </Link>
-        </div>
-      </div>
+      {/* Admin Sub-Nav Header */}
+      <AdminNav
+        title="Admin Operations Portal"
+        subtitle="System metrics, vehicle fleet management, user records, driver assignments, and booking controls."
+      />
 
       {/* KPI Stats Grid */}
       <div className="stats-grid">
-        <div className="stat-card">
+        <Link to="/admin/users" className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <div className="stat-icon" style={{ background: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-primary)' }}>
             <Users size={24} />
           </div>
           <div className="stat-info">
             <h3>{stats?.totalUsers || 0}</h3>
-            <p>Registered Customers</p>
+            <p>Registered Customers & Users</p>
           </div>
-        </div>
+        </Link>
 
-        <div className="stat-card">
+        <Link to="/admin/vehicles" className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <div className="stat-icon" style={{ background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-secondary)' }}>
             <Car size={24} />
           </div>
@@ -84,9 +73,9 @@ const AdminDashboard = () => {
             <h3>{stats?.totalVehicles || 0}</h3>
             <p>Total Fleet ({stats?.availableVehicles} Available)</p>
           </div>
-        </div>
+        </Link>
 
-        <div className="stat-card">
+        <Link to="/admin/bookings" className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
             <Calendar size={24} />
           </div>
@@ -94,9 +83,9 @@ const AdminDashboard = () => {
             <h3>{stats?.totalBookings || 0}</h3>
             <p>Total Reservations</p>
           </div>
-        </div>
+        </Link>
 
-        <div className="stat-card">
+        <Link to="/admin/reports" className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
             <DollarSign size={24} />
           </div>
@@ -104,7 +93,7 @@ const AdminDashboard = () => {
             <h3>{formatCurrency(stats?.totalRevenue || 0)}</h3>
             <p>System Gross Revenue</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Status Counters Bar */}

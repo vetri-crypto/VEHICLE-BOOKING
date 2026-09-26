@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminBookings, updateBookingStatus } from '../services/adminApi';
+import AdminNav from '../components/AdminNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import StatusBadge from '../components/StatusBadge';
@@ -71,14 +72,12 @@ const AdminBookings = () => {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      <div>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.25rem' }}>Reservation Management</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Monitor system bookings, assigned drivers, route details, and status transition flow.
-        </p>
-      </div>
+      <AdminNav
+        title="Reservation Management"
+        subtitle="Monitor system bookings, assigned drivers, route details, and status transition flow."
+      />
 
       {/* Filter Tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', background: 'var(--bg-card)', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>

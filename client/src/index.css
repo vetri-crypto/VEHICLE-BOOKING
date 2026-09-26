@@ -631,37 +631,74 @@ a:hover {
     padding: 0;
   }
 
-  /* Full-width touch buttons on mobile */
+  /* Full-width touch buttons & multiline wrapping on mobile */
+  .btn {
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.35;
+    padding: 0.65rem 0.85rem;
+    max-width: 100%;
+  }
+
   .btn-lg {
     width: 100%;
     justify-content: center;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .form-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .form-select {
+    padding-right: 2rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .form-input, .form-textarea {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
 /* Small Smartphone Devices (< 560px) */
 @media (max-width: 560px) {
+  .main-content {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  .card {
+    padding: 1rem 0.75rem;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
 
   h1 {
-    font-size: 1.65rem !important;
+    font-size: 1.5rem !important;
   }
 
   h2 {
-    font-size: 1.35rem !important;
+    font-size: 1.25rem !important;
   }
 
   h3 {
-    font-size: 1.15rem !important;
+    font-size: 1.1rem !important;
   }
 
   .modal-overlay {
-    padding: 0.5rem;
+    padding: 0.4rem;
   }
 
   .modal-content {
-    padding: 1.25rem;
+    padding: 1rem;
     width: 98%;
     max-height: 95vh;
   }

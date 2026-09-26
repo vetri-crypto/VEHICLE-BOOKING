@@ -1,25 +1,24 @@
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 
-const registerUser = async ({ name, email, phone, password, address, role }) => {
+const registerUser = async ({ name, email, phone, password, address }) => {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) {
-    const error = new Error('User already exists with this email');
+    const error = new Error('An account with this email already exists.');
     error.statusCode = 409;
     throw error;
   }
 
-  // Allow CUSTOMER, DRIVER, or ADMIN registration
-  const validRole = role && ['CUSTOMER', 'DRIVER', 'ADMIN'].includes(role) ? role : 'CUSTOMER';
-
+  // Security Hardening: Public registration is strictly CUSTOMER only.
+  // Any role passed in request body is ignored.
   const user = await User.create({
     name,
     email: email.toLowerCase(),
     phone,
     password,
-    address,
-    role: validRole,
-    driverStatus: validRole === 'DRIVER' ? 'AVAILABLE' : 'OFFLINE'
+    address: address || '',
+    role: 'CUSTOMER',
+    driverStatus: 'OFFLINE'
   });
 
   const token = generateToken(user._id, user.role);

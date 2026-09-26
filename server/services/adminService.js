@@ -89,7 +89,66 @@ const getReports = async () => {
   };
 };
 
+const createUser = async ({ name, email, phone, password, confirmPassword, address, role }) => {
+  if (!name || !email || !phone || !password || !role) {
+    const error = new Error('Please provide all required fields: name, email, phone, password, role');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (password.length < 6) {
+    const error = new Error('Password must be at least 6 characters long');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (confirmPassword && password !== confirmPassword) {
+    const error = new Error('Passwords do not match');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalizedRole = role.toUpperCase();
+  if (!['CUSTOMER', 'DRIVER', 'ADMIN'].includes(normalizedRole)) {
+    const error = new Error('Invalid role specified. Must be CUSTOMER, DRIVER, or ADMIN');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
+  if (existingUser) {
+    const error = new Error('An account with this email already exists.');
+    error.statusCode = 409;
+    throw error;
+  }
+
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
+    phone,
+    password,
+    address: address || '',
+    role: normalizedRole,
+    driverStatus: normalizedRole === 'DRIVER' ? 'AVAILABLE' : 'OFFLINE',
+    status: 'ACTIVE'
+  });
+
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    role: user.role,
+    driverStatus: user.driverStatus,
+    rating: user.rating,
+    status: user.status,
+    createdAt: user.createdAt
+  };
+};
+
 module.exports = {
   getDashboardStats,
-  getReports
+  getReports,
+  createUser
 };

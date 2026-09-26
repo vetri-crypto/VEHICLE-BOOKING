@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAdminVehicles } from '../services/adminApi';
 import { createVehicle, updateVehicle, deleteVehicle } from '../services/vehicleApi';
+import AdminNav from '../components/AdminNav';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import StatusBadge from '../components/StatusBadge';
@@ -141,19 +142,16 @@ const AdminVehicles = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      {/* Header */}
-      <div className="page-header">
-        <div>
-          <h1 style={{ fontSize: '2.25rem', marginBottom: '0.25rem' }}>Vehicle Fleet Management</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Add, update, modify pricing, status, and details for all vehicles in the catalog.
-          </p>
-        </div>
+      <AdminNav
+        title="Vehicle Fleet Management"
+        subtitle="Add, update, modify pricing, status, and details for all vehicles in the catalog."
+      />
 
-        <button onClick={handleOpenAdd} className="btn btn-primary">
-          <Plus size={18} /> Add New Vehicle
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-0.5rem' }}>
+        <button onClick={handleOpenAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Plus size={18} /> + Add New Vehicle
         </button>
       </div>
 
