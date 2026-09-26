@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "ooase-vehicle-booking-system-collection",
+    "_postman_id": "drivepulse-api-testing-suite",
     "name": "DrivePulse — API Testing",
-    "description": "Complete Postman API Test Suite for DrivePulse MERN Stack Online Vehicle Booking System",
+    "description": "Comprehensive Postman API Test Suite for DrivePulse MERN Stack Online Vehicle Booking System",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -22,6 +22,21 @@
       "item": [
         {
           "name": "Register Customer (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is CUSTOMER', function () { pm.expect(jsonData.data.role).to.eql('CUSTOMER'); });",
+                  "pm.test('Password is not returned', function () { pm.expect(jsonData.data.password).to.be.undefined; });",
+                  "if (jsonData.data && jsonData.data._id) { pm.environment.set('customerId', jsonData.data._id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -34,6 +49,20 @@
         },
         {
           "name": "Login Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is CUSTOMER', function () { pm.expect(jsonData.data.role).to.eql('CUSTOMER'); });",
+                  "if (jsonData.data && jsonData.data.token) { pm.environment.set('customerToken', jsonData.data.token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -46,6 +75,20 @@
         },
         {
           "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is ADMIN', function () { pm.expect(jsonData.data.role).to.eql('ADMIN'); });",
+                  "if (jsonData.data && jsonData.data.token) { pm.environment.set('adminToken', jsonData.data.token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -58,6 +101,17 @@
         },
         {
           "name": "Get Current User Profile (/api/auth/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
@@ -70,7 +124,7 @@
       "name": "02 - Customer",
       "item": [
         {
-          "name": "Get Customer Profile",
+          "name": "Get Profile",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
@@ -92,6 +146,19 @@
       "item": [
         {
           "name": "Driver Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) { pm.environment.set('driverToken', jsonData.data.token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -103,7 +170,7 @@
           }
         },
         {
-          "name": "Driver Dashboard",
+          "name": "Driver Dashboard & Assignments",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{driverToken}}" }],
@@ -111,7 +178,7 @@
           }
         },
         {
-          "name": "Start Booking",
+          "name": "Driver Start Booking",
           "request": {
             "method": "PUT",
             "header": [{ "key": "Authorization", "value": "Bearer {{driverToken}}" }],
@@ -119,7 +186,7 @@
           }
         },
         {
-          "name": "Complete Booking",
+          "name": "Driver Complete Booking",
           "request": {
             "method": "PUT",
             "header": [{ "key": "Authorization", "value": "Bearer {{driverToken}}" }],
@@ -133,6 +200,20 @@
       "item": [
         {
           "name": "Admin Create Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is DRIVER', function () { pm.expect(jsonData.data.role).to.eql('DRIVER'); });",
+                  "if (jsonData.data && jsonData.data._id) { pm.environment.set('driverId', jsonData.data._id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -148,6 +229,19 @@
         },
         {
           "name": "Admin Create Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is ADMIN', function () { pm.expect(jsonData.data.role).to.eql('ADMIN'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -162,7 +256,7 @@
           }
         },
         {
-          "name": "Get All Users",
+          "name": "Admin Get All Users",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
@@ -170,11 +264,19 @@
           }
         },
         {
-          "name": "Dashboard Stats",
+          "name": "Admin Dashboard Stats",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
             "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+          }
+        },
+        {
+          "name": "Admin Reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/reports", "host": ["{{baseUrl}}"], "path": ["admin", "reports"] }
           }
         }
       ]
@@ -184,13 +286,26 @@
       "item": [
         {
           "name": "Get All Vehicles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) { pm.environment.set('vehicleId', jsonData.data[0]._id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "url": { "raw": "{{baseUrl}}/vehicles", "host": ["{{baseUrl}}"], "path": ["vehicles"] }
           }
         },
         {
-          "name": "Search Vehicles",
+          "name": "Search & Filter Vehicles",
           "request": {
             "method": "GET",
             "url": {
@@ -205,7 +320,14 @@
           }
         },
         {
-          "name": "Check Availability",
+          "name": "Get Vehicle By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/vehicles/{{vehicleId}}", "host": ["{{baseUrl}}"], "path": ["vehicles", "{{vehicleId}}"] }
+          }
+        },
+        {
+          "name": "Check Vehicle Availability",
           "request": {
             "method": "GET",
             "url": {
@@ -226,6 +348,20 @@
       "item": [
         {
           "name": "Create Booking WITHOUT_DRIVER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('driverId is null', function () { pm.expect(jsonData.data.driverId).to.be.null; });",
+                  "if (jsonData.data && jsonData.data._id) { pm.environment.set('bookingId', jsonData.data._id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -241,6 +377,19 @@
         },
         {
           "name": "Create Booking WITH_DRIVER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Driver is assigned', function () { pm.expect(jsonData.data.driverId).to.not.be.null; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -261,6 +410,19 @@
       "item": [
         {
           "name": "Security: Public Register Attempting role=ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Role is forced to CUSTOMER', function () { pm.expect(jsonData.data.role).to.eql('CUSTOMER'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -272,7 +434,18 @@
           }
         },
         {
-          "name": "RBAC: Customer Accessing Admin API (403)",
+          "name": "RBAC: Customer Accessing Admin API (Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
@@ -280,11 +453,78 @@
           }
         },
         {
-          "name": "RBAC: Driver Accessing Admin API (403)",
+          "name": "RBAC: Driver Accessing Admin API (Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{driverToken}}" }],
             "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] }
+          }
+        },
+        {
+          "name": "RBAC: Customer Accessing Driver API (Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/driver/dashboard", "host": ["{{baseUrl}}"], "path": ["driver", "dashboard"] }
+          }
+        },
+        {
+          "name": "Security: Invalid JWT Token (Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () { pm.response.to.have.status(401); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer invalid.jwt.string" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        },
+        {
+          "name": "Security: Missing Authorization Header (Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () { pm.response.to.have.status(401); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
           }
         }
       ]

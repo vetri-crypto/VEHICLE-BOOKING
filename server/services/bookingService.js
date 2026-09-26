@@ -102,6 +102,20 @@ const createBooking = async (userId, bookingData) => {
         error.statusCode = 400;
         throw error;
       }
+
+      if (driver.driverStatus === 'BUSY') {
+        const error = new Error('Selected driver is currently busy handling another trip.');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const activeTrip = await Booking.findOne({ driverId: driver._id, status: 'ACTIVE' });
+      if (activeTrip) {
+        const error = new Error('Selected driver is currently handling another active trip.');
+        error.statusCode = 400;
+        throw error;
+      }
+
       assignedDriverId = driver._id;
     } else {
       // Broadcast mode: driverId remains null so all active drivers receive the request to accept
@@ -405,6 +419,19 @@ const acceptDriverBooking = async (bookingId, driverUserId) => {
   if (!driver || driver.role !== 'DRIVER' || driver.status !== 'ACTIVE') {
     const error = new Error('Driver account is not active or authorized');
     error.statusCode = 403;
+    throw error;
+  }
+
+  if (driver.driverStatus === 'BUSY') {
+    const error = new Error('You are currently handling an active trip and cannot accept another booking.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const activeTrip = await Booking.findOne({ driverId: driverUserId, status: 'ACTIVE' });
+  if (activeTrip) {
+    const error = new Error('You are currently handling an active trip.');
+    error.statusCode = 400;
     throw error;
   }
 
